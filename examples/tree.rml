@@ -1,0 +1,28 @@
+(* 二元搜尋樹：遞迴型別自動 Box；所有權沿著樹流動 *)
+type 'a tree = Leaf | Node of 'a tree * 'a * 'a tree
+
+let rec insert (t: int tree) (x: int) : int tree =
+  match t with
+  | Leaf -> Node (Leaf, x, Leaf)
+  | Node (l, v, r) ->
+      if x < v then Node (insert l x, v, r)
+      else if x > v then Node (l, v, insert r x)
+      else Node (l, v, r)
+
+let rec size (t: &int tree) : int =
+  match t with
+  | Leaf -> 0
+  | Node (l, _, r) -> size l + 1 + size r
+
+let rec sum (t: &int tree) : int =
+  match t with
+  | Leaf -> 0
+  | Node (l, v, r) -> sum l + !v + sum r
+
+let rec build (i: int) (n: int) (t: int tree) : int tree =
+  if i = n then t else build (i + 1) n (insert t ((i * 7919) mod 100003))
+
+let main () =
+  let t = build 0 200000 Leaf in
+  print_int (size (&t)); print_newline ();
+  print_int (sum (&t)); print_newline ()

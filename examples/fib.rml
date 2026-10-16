@@ -1,0 +1,10 @@
+(* 遞迴 + 尾遞迴：尾遞迴會被轉成 loop *)
+let rec fib (n: int) : int =
+  if n < 2 then n else fib (n - 1) + fib (n - 2)
+
+let rec sum_to (n: int) (acc: int) : int =
+  if n = 0 then acc else sum_to (n - 1) (acc + n)
+
+let main () =
+  print_endline (string_of_int (fib 35) ^ "");
+  print_endline (string_of_int (sum_to 1000000000 0) ^ "")

@@ -1,0 +1,7 @@
+let consume (s: string) : int = string_length s
+
+let main () =
+  let s = "hello" in
+  let n = consume s in
+  print_endline s;     (* 錯誤：s 已經被 move *)
+  print_int n

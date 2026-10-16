@@ -1,0 +1,27 @@
+(* 代數資料型別、模式比對、高階函式、泛型 *)
+let rec map (f: 'a -> 'b) (xs: 'a list) : 'b list =
+  match xs with
+  | Nil -> Nil
+  | Cons (h, t) -> Cons (f h, map f t)
+
+let rec fold (f: 'b -> 'a -> 'b) (acc: 'b) (xs: 'a list) : 'b =
+  match xs with
+  | Nil -> acc
+  | Cons (h, t) -> fold f (f acc h) t
+
+let rec range (lo: int) (hi: int) : int list =
+  if lo >= hi then Nil else lo :: range (lo + 1) hi
+
+let rec length (xs: &'a list) : int =
+  match xs with
+  | Nil -> 0
+  | Cons (_, t) -> 1 + length t
+
+let main () =
+  let xs = range 0 10 in
+  let n = length (&xs) in            (* 借用：xs 之後仍可使用 *)
+  let k = 3 in
+  let ys = map (fun x -> x * k) xs in  (* xs 被 move 進 map *)
+  let total = fold (fun a b -> a + b) 0 ys in
+  print_string (&"count = "); print_int n; print_newline ();
+  print_string (&"total = "); print_int total; print_newline ()

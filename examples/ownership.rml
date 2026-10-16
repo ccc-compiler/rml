@@ -1,0 +1,16 @@
+(* 所有權：move、借用、&mut *)
+let append_bang (s: string) : string = s ^ "!"
+
+let incr (r: &mut int) : unit = r := !r + 1
+
+let main () =
+  let a = "hello" in
+  let b = append_bang a in      (* a 被 move 進去 *)
+  print_endline b;
+  let mut counter = 0 in
+  incr (&mut counter);
+  incr (&mut counter);
+  print_int counter; print_newline ();
+  let c = clone b in            (* 明確複製 *)
+  print_endline c;
+  print_endline b
