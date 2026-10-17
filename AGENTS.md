@@ -1,18 +1,29 @@
 # AGENTS.md
 
-This is RML v0.1: a single-file compiler `rmlc.rs` that compiles ML-like RML to Rust. Keep guidance minimal and repo-specific.
+This is RML v0.1 + v0.2: a single-file compiler `rmlc.rs` that compiles ML-like RML to Rust, plus `rmlgo.rs` (cargo-like project manager). Keep guidance minimal and repo-specific.
 
 ## Build
 
-- `rustc -O rmlc.rs -o rmlc` (repo already has `rmlc` binary; rebuild if you change `rmlc.rs`)
-- Don't need Cargo or external crates.
+- rmlc: `rustc -O rmlc.rs -o rmlc` (repo has `rmlc` binary; rebuild if you change `rmlc.rs`)
+- rmlgo: `rustc -O rmlgo.rs -o rmlgo` (repo has `rmlgo` binary; rebuild if you change `rmlgo.rs`)
+- Don't need Cargo or external crates for the tools themselves.
 
-## Run compiler
+## Run compiler (rmlc)
 
 - `./rmlc <prog.rml>` → writes `<prog>.rs` (default)
 - `./rmlc <prog.rml> -o out.rs`
 - `./rmlc <prog.rml> --run` → compiles to Rust, then `rustc -O` + runs binary
 - `./rmlc <prog.rml> --stdout` → print generated Rust to stdout
+
+## rmlgo (project manager, v0.2)
+
+- `./rmlgo new <name>` → create project with `src/main.rml`, `Rml.toml`, `Cargo.toml`, `.gitignore`
+- `./rmlgo init` → initialize in current dir
+- `./rmlgo build` → `rmlc src/main.rml --stdout` → `target/gen.rs`, then `cargo build --release`
+- `./rmlgo run` → build + run release binary
+- `./rmlgo check` → type/ownership check via `rmlc` (no full build)
+- `./rmlgo clean` → clean `target/` and root `.rs` files matching `.rml` names
+- `./rmlgo help` → usage
 
 ## Examples & quick check
 
@@ -34,19 +45,25 @@ This is RML v0.1: a single-file compiler `rmlc.rs` that compiles ML-like RML to 
 - Predefined: `list` (`Nil | Cons of 'a * 'a list`), `option` (`None | Some of 'a`).
 - Rust keywords escaped by appending `_` in generated names; type names normalized.
 
-## Editing compiler
+## rmlgo quirks (v0.2)
 
-- Single file `rmlc.rs` (Chinese comments). If you modify it, rebuild: `rustc -O rmlc.rs -o rmlc`.
-- Preserve existing behavior for examples if possible; run `./run.sh` after changes.
+- Single-file `rmlgo.rs`; calls `rmlc` (prefers local `./rmlc`), `cargo`, `rustc` as needed. Does not modify `rmlc` behavior.
+- `build` writes `rmlc --stdout` to `target/gen.rs` and runs `cargo build --release`. Project uses bridge `Cargo.toml` pointing to `target/gen.rs` for both lib/bin.
+- Auto-detects entry: `src/main.rml` first, else project root `.rml`, else first found `.rml`. Auto-creates minimal `Cargo.toml`/`Rml.toml` if missing.
+- `run` looks up package name from `Cargo.toml` or dir name to find binary in `target/release/`.
+
+## Editing compiler/tools
+
+- `rmlc.rs` (Chinese comments): if modified, rebuild with `rustc -O rmlc.rs -o rmlc`. Preserve existing behavior for examples; run `./run.sh` after changes.
+- `rmlgo.rs`: if modified, rebuild with `rustc -O rmlgo.rs -o rmlgo`.
 - Error messages go to stderr with filename:line when line>0.
 
 ## Repo structure
 
-- `rmlc.rs` — source (v0.1 by Claude)
-- `rmlc` — compiled binary
+- `rmlc.rs`, `rmlc` — compiler (v0.1)
+- `rmlgo.rs`, `rmlgo` — project manager (v0.2)
 - `examples/*.rml` — source examples
 - `examples/*.rs` + binaries — generated artifacts (committed)
 - `run.sh` — runs all examples with `--run`
 - `README.md` — minimal
-- `_doc/v0.1.md` — detailed writeup for this version
-
+- `_doc/v0.1.md`, `_doc/v0.2.md` — detailed writeups
